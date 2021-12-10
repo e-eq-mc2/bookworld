@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { Snow }  from  './snow.js'
+import { Book, Page }  from  './book.js'
 const Common = require("./lib/common.js")
 
 function randomRange(min, max) {
@@ -18,9 +19,10 @@ let renderer, scene, camera, stats
 let mouseX = 0
 let mouseY = 0
 
-let snow
+let book
 
 init()
+let lastUpdate = performance.now()
 animate()
 
 function init() {
@@ -34,17 +36,23 @@ function init() {
 	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera(
-    90, 
+    60, 
     window.innerWidth / window.innerHeight,
     1, 
-    10000 
+    1000 
   );
 
-	camera.position.z = 2000
+	camera.position.z = 12
 	scene.add(camera);
 
-  snow= new Snow(10000, -5000, 5000)
-  scene.add( snow.flakes )
+  const axesHelper = new THREE.AxesHelper( 5 )
+  scene.add( axesHelper )
+
+
+  book = new Book(20)
+  book.eachPage((p) => {
+    scene.add( p.mesh )
+  })
 
 	container.appendChild( renderer.domElement );
 
@@ -107,12 +115,10 @@ function animate() {
 }
 
 function render() {
-
-  snow.updatePhysics()
-
-	//camera.position.x += (   mouseX - camera.position.x ) * 0.05
-	//camera.position.y += ( - mouseY - camera.position.y ) * 0.05
-	//camera.lookAt(scene.position)
+  const now = performance.now()
+  const deltaT = (now - lastUpdate) / 1000
+  book.update(deltaT)
+  lastUpdate = now
 
 	renderer.render(scene, camera)		
   stats.update()
@@ -123,65 +129,13 @@ document.body.addEventListener("keydown", function(e) {
   console.log(`key: ${e.key}`);
 
   switch(true) {
-    case e.key == '0':
-      snow.colormap.set('black')
-      break
-    case e.key == '1':
-      snow.colormap.set('white')
-      break
-    case e.key == '2':
-      snow.colormap.set('blue-black')
-      break
-    case e.key == '3':
-      snow.colormap.set('aqua-black')
-      break
-    case e.key == '4':
-      snow.colormap.set('green-black')
-      break
-    case e.key == '5':
-      snow.colormap.set('yellow-black')
-      break
-    case e.key == '6':
-      snow.colormap.set('red-black')
-      break
-    case e.key == '7':
-      snow.colormap.set('rose-black')
-      break
-    case e.key == '8':
-      snow.colormap.set('purple-black')
-      break
-    case e.key == 'm':
-      snow.colormap.set('mix-black')
-      break
-    case e.key == 'p':
-      window.api.send('竜とそばかすの姫_歌よ_Belle_中村佳穂.mp3', 'music')
-      break
-
-    case e.key == "b":
-      {
-        let b = Math.cbrt(snow.colormap.getBlackRate())
-        b += 0.1
-        b = b ** 3
-        snow.colormap.setBlackRate(b)
-      }
-      break
-
-    case e.key == "w":
-      {
-
-        let b = Math.cbrt(snow.colormap.getBlackRate())
-        b -= 0.1
-        b = b >= 0 ? b ** 3 : 0
-        snow.colormap.setBlackRate(b)
-      }
+    case e.key == 'n':
+      book.goForward() 
       break
 
     default:
       break
   }
-
-  snow.changeColor()
-
 });
 
 
