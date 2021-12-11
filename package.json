@@ -1,5 +1,5 @@
 {
-  "name": "rainworld",
+  "name": "bookworld",
   "version": "1.0.0",
   "description": "Enjoy the world!!",
   "main": "main.js",
@@ -12,16 +12,16 @@
   "author": "Noa",
   "license": "MIT",
   "devDependencies": {
-    "@webpack-cli/generators": "^2.2.0",
-    "electron": "^13.1.1",
+    "@webpack-cli/generators": "^2.4.1",
+    "electron": "^16.0.4",
     "npm-run-all": "^4.1.5",
-    "webpack": "^5.38.1",
-    "webpack-cli": "^4.7.2"
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
   },
   "dependencies": {
     "animejs": "^3.2.1",
-    "cubic-bezier-easing": "^1.0.14",
+    "cubic-bezier-easing": "^1.0.18",
     "net": "^1.0.2",
-    "three": "^0.130.1"
+    "three": "^0.135.0"
   }
 }

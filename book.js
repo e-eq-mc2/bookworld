@@ -1,5 +1,6 @@
 const THREE = require('three');
-import { SceneUtils } from 'three/examples/jsm/utils/SceneUtils.js'
+//import { SceneUtils } from 'three/examples/jsm/utils/SceneUtils.js'
+import { createMultiMaterialObject } from 'three/examples/jsm/utils/SceneUtils.js'
 import CubicBezier from 'cubic-bezier-easing'
 const Common   = require("./lib/common.js")
 const Colormap = require("./lib/colormap.js")
@@ -11,36 +12,59 @@ const TO_RADIANS = Math.PI/180.0
 
 export class Page {
 
-  constructor() {
+  constructor(idx, width = 10, height = 13) {
+    const geometry = this.plateGeometry(width, height, 9, 1)
 
-    const geometry = this.plateGeometry(10, 13, 9, 1)
-    const material = this.plateMaterial("img/page0.jpg", "img/page1.jpg")
+    this.idx = idx
+    //const idx0 = this.idx
+    const idx0 = 0
+    const idx1 = idx0 + 1
+    const fname0 = `img/page${idx0}.jpg`
+    const fname1 = `img/page${idx1}.jpg`
+    const material = this.plateMaterials(fname0, fname1)
 
-    //this.mesh = new THREE.Mesh(geometry, material)
-    this.mesh = SceneUtils.createMultiMaterialObject(geometry, material)
-    console.log(this.mesh)
-    this.initPositions = this.mesh.children[0].geometry.getAttribute("position").clone().array
+    this.mesh = createMultiMaterialObject(geometry, material)
+    this.mesh.translateX(width/2)
 
-    this.t = 0
-    this.speedSec = 4
+    this.initPos = this.mesh.children[0].geometry.getAttribute("position").clone().array
+
+    this.time = 0
+    this.speedSec = 3.5
     this.doPaging = false
+    this.direction = +1
 
     //this.ease = new CubicBezier(0.0 , 0.0, 1.0 , 1.0)
     //this.ease = new CubicBezier(0.42, 0.0, 1.0 , 1.0)
     //this.ease = new CubicBezier(0.0 , 0.0, 0.58, 1.0)
     this.ease = new CubicBezier(0.42, 0.0, 0.58, 1.0) // ease-in-out 
 
-    this.bendingKeyframes = new Map([[0, 0], [0.5, 15], [1,   0]])
-    this.pagingKeyframes  = new Map([[0, -9],  [1, -171]])
+    this.bendingKeyframes = new Map([[0,  0], [0.5, 15], [1,    0]])
+    this.pagingKeyframes  = new Map([[0, -7],            [1, -173]])
+
+    this.updatePositions()
   }
 
   update(dt) {
-    if ( ! this.doPaging && this.t > 0 ) return
-    this.t += dt
-    //this.t += 0.03
+    if ( ! this.doPaging ) return
+    this.time += dt * this.direction
 
-    const geometry = this.mesh.children[0].geometry
-		const posAttr = geometry.getAttribute("position")
+    if (this.time == 0 ) console.log(this.time, dt, this.direction)
+
+    if ( this.time < 0             ) {
+      this.time = 0
+      this.doPaging = false
+    }
+    if ( this.time > this.speedSec ) {
+      this.time = this.speedSec
+      this.doPaging = false
+    }
+
+    this.updatePositions()
+  }
+
+  updatePositions() {
+    const geometry  = this.mesh.children[0].geometry
+		const posAttr   = geometry.getAttribute("position")
     const positions = posAttr.array
 
     const w     = geometry.parameters.width 
@@ -52,24 +76,24 @@ export class Page {
     const hvers = hsegs + 1
     const axis = new THREE.Vector3(0, 1, 0)
     for (let j = 0; j < hvers; j++) {
-      let i0 = 3*( j * wvers + 0 )
-      let i1 = 3*( j * wvers + 1 )
+      const i0 = 3*( j * wvers + 0 )
+      const i1 = 3*( j * wvers + 1 )
 
-      let x0 = this.initPositions[i0 + 0]
-      let y0 = this.initPositions[i0 + 1]
-      let z0 = this.initPositions[i0 + 2]
-      let x1 = this.initPositions[i1 + 0]
-      let y1 = this.initPositions[i1 + 1]
-      let z1 = this.initPositions[i1 + 2]
-      let v = new THREE.Vector3(x1-x0, y1-y0, z1-z0)
+      const x0 = this.initPos[i0 + 0]
+      const y0 = this.initPos[i0 + 1]
+      const z0 = this.initPos[i0 + 2]
+      let   x1 = this.initPos[i1 + 0]
+      let   y1 = this.initPos[i1 + 1]
+      let   z1 = this.initPos[i1 + 2]
+      let   v = new THREE.Vector3(x1-x0, y1-y0, z1-z0)
 
       for (let i = 0; i < wsegs; i++) {
-        i0 = 3*( j * wvers + i  )
-        i1 = 3*( j * wvers + i+1)
+        const i0 = 3*( j * wvers + i  )
+        const i1 = 3*( j * wvers + i+1)
 
-        x0 = positions[i0 + 0]
-        y0 = positions[i0 + 1]
-        z0 = positions[i0 + 2]
+        const x0 = positions[i0 + 0]
+        const y0 = positions[i0 + 1]
+        const z0 = positions[i0 + 2]
         const p0 = new THREE.Vector3(x0, y0, z0)
 
         const rateX = i / (wsegs - 1.0)
@@ -92,7 +116,7 @@ export class Page {
   }
 
   angle(rate) {
-    const timeRate = Math.min(this.t / this.speedSec, 1)
+    const timeRate = this.time / this.speedSec
     const t = this.ease(timeRate) 
     const pa = this.getAngle(t, this.pagingKeyframes)
     const ba = this.getAngle(t, this.bendingKeyframes)
@@ -127,39 +151,29 @@ export class Page {
 
   plateGeometry(w, h, wsegs, hsegs) {
     const geometry = new THREE.PlaneGeometry(w, h, wsegs, hsegs)
-
-//    for (let i = 0, len = geometry.faces.length; i < len; i++) {
-//      const face = geometry.faces[i].clone();
-//      face.materialIndex = 1;
-//      geometry.faces.push(face);
-//      geometry.faceVertexUvs[0].push(geometry.faceVertexUvs[0][i].slice(0));
-//    }
-
     return geometry
   }
 
-  plateMaterial(fileName0, fileName1) {
-    const texture0  = new THREE.TextureLoader().load( fileName0 )
-    const texture1  = new THREE.TextureLoader().load( fileName1 )
+  plateMaterials(fname0, fname1) {
+    const tex0  = new THREE.TextureLoader().load( fname0 )
+    const tex1  = new THREE.TextureLoader().load( fname1 )
 
-    const material0 = new THREE.MeshBasicMaterial({map: texture0, side: THREE.FrontSide});
-    const material1 = new THREE.MeshBasicMaterial({map: texture1, side: THREE.BackSide});
-    const material = [material0, material1]
+    const mat0 = new THREE.MeshBasicMaterial({map: tex0, side: THREE.FrontSide});
+    const mat1 = new THREE.MeshBasicMaterial({map: tex1, side: THREE.BackSide});
+    const mats = [mat0, mat1]
 
-    //const material = new THREE.MeshFaceMaterial([material0, material1])
-    return material
+    return mats
   }
 }
 
 export class Book {
-
   constructor(numPages) {
     this.pages = []
-    for (let j = 0; j < numPages; j++) {
-      const page = new Page()
+    for (let i = 0; i < numPages; i++) {
+      const page = new Page(i)
       this.pages.push(page) 
     }
-    this.current = -1
+    this.paged = 0
   }
 
   eachPage(callback) {
@@ -174,25 +188,27 @@ export class Book {
     })
   }
 
-  currentPage() {
-    return this.pages[this.current]
-  }
-
   goForward() {
-    ++this.current
-    this.current = Math.min(this.current, this.pages.length-1)
-
-    const p = this.currentPage()
-    p.doPaging = true
+    ++this.paged
+    this.paged = Math.min(this.paged, this.pages.length)
+    this.updatePageState()
   }
 
   goBack() {
-    --this.current
-    this.current = Math.max(this.current, 0)
+    --this.paged
+    this.paged = Math.max(this.paged,                   0)
+    this.updatePageState()
+  }
 
-    const p = this.currentPage()
-    p.doPaging = true
+  updatePageState() {
+    for (let i = 0; i < this.pages.length; i++) {
+      const p = this.pages[i]
+      if ( i < this.paged ) {
+        p.direction = +1
+      } else {
+        p.direction = -1
+      } 
+      p.doPaging = true
+    }
   }
 }
-
-

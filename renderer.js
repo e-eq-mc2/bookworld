@@ -42,7 +42,7 @@ function init() {
     1000 
   );
 
-	camera.position.z = 12
+	camera.position.z = 18
 	scene.add(camera);
 
   const axesHelper = new THREE.AxesHelper( 5 )
@@ -117,6 +117,9 @@ function animate() {
 function render() {
   const now = performance.now()
   const deltaT = (now - lastUpdate) / 1000
+  if (deltaT  === void 0) {
+    console.log(now, lastUpdate)
+  }
   book.update(deltaT)
   lastUpdate = now
 
@@ -129,13 +132,20 @@ document.body.addEventListener("keydown", function(e) {
   console.log(`key: ${e.key}`);
 
   switch(true) {
-    case e.key == 'n':
+    case e.key == 'p':
+      console.log(book.pages[0])
+      break
+    case e.key == 'f':
       book.goForward() 
+      //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
+      break
+
+    case e.key == 'b':
+      book.goBack() 
+      //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
       break
 
     default:
       break
   }
 });
-
-
