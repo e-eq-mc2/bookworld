@@ -26,6 +26,9 @@ export class Snow {
   }
 
   init() {
+    this.shouldStop = false
+    if ( this.flakes !== void 0 )  return
+
     const positions = new Float32Array(this.num * 3)
     const colors    = new Float32Array(this.num * 3)
 
@@ -87,7 +90,6 @@ export class Snow {
     }
 
     this.scene.add(this.flakes)
-
   }
 
   changeColor() {
@@ -110,6 +112,7 @@ export class Snow {
 
   update(dt) {
     if ( this.flakes === void 0  )  return
+    if ( this.shouldStop         )  return
 
     const positions = this.flakes.geometry.attributes.position.array
 
@@ -154,6 +157,30 @@ export class Snow {
     }
 
     this.flakes.geometry.attributes.position.needsUpdate = true
+  }
+
+
+  reset() {
+    if ( this.flakes === void 0  )  return
+
+    const positions = this.flakes.geometry.attributes.position.array
+
+    for (let i = 0; i < this.num; i++) {
+      const x = Common.randomReal(this.rangeMinX, this.rangeMaxX) 
+      const y = Common.randomReal(this.rangeMaxY, this.rangeMaxY * 4)
+      const z = Common.randomReal(this.rangeMinZ, this.rangeMaxZ)
+
+      positions[i * 3 + 0] = x
+      positions[i * 3 + 1] = y
+      positions[i * 3 + 2] = z
+    }
+
+    this.flakes.geometry.attributes.position.needsUpdate = true
+  }
+
+  hide() {
+    this.shouldStop = true
+    this.reset()
   }
 
   shouldProceed(dwell, x, y, z) {

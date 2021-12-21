@@ -17,10 +17,10 @@ export class Page {
 
     this.idx = idx
     //const idx0 = this.idx
-    const idx0 = 0
+    const idx0 = idx
     const idx1 = idx0 + 1
-    const fname0 = `img/page${idx0}.jpg`
-    const fname1 = `img/page${idx1}.jpg`
+    const fname0 = `img/${1}.png`
+    const fname1 = `img/${1}.png`
     const material = this.plateMaterials(fname0, fname1)
 
     this.mesh = createMultiMaterialObject(geometry, material)
@@ -158,8 +158,22 @@ export class Page {
     const tex0  = new THREE.TextureLoader().load( fname0 )
     const tex1  = new THREE.TextureLoader().load( fname1 )
 
-    const mat0 = new THREE.MeshBasicMaterial({map: tex0, side: THREE.FrontSide, depthWrite: true});
-    const mat1 = new THREE.MeshBasicMaterial({map: tex1, side: THREE.BackSide, depthWrite: true});
+    const mat0 = new THREE.MeshBasicMaterial({
+      map:         tex0, 
+      side:        THREE.FrontSide, 
+      depthWrite:  true,
+      transparent: true,
+      alphaTest:   0.5
+    });
+    const mat1 = new THREE.MeshBasicMaterial({
+      map:         tex1, 
+      side:        THREE.BackSide,
+      depthWrite:  true,
+      transparent: true,
+      alphaTest:   0.5
+    });
+ 
+
     const mats = [mat0, mat1]
 
     return mats

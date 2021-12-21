@@ -36,29 +36,29 @@ function init() {
 	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera(
-    60, 
+    55, 
     window.innerWidth / window.innerHeight,
-    1, 
-    1000 
+    0.01, 
+    500 
   );
 
-	camera.position.z = 20
-	scene.add(camera);
+	camera.position.z = 16
+	scene.add(camera)
 
   const axesHelper = new THREE.AxesHelper( 5 )
   //scene.add( axesHelper )
 
-  book = new Book(20, 12, 10)
+  book = new Book(20, 10.24, 9.44)
   book.eachPage((p) => {
     scene.add( p.mesh )
   })
 
-  const minX = -50
-  const maxX =  50
+  const minX = -40
+  const maxX =  40
   const minY = - book.height / 2
-  const maxY = book.height * 4
-  const minZ = -50
-  const maxZ =  50
+  const maxY =   book.height * 4
+  const minZ = -55
+  const maxZ =  camera.position.z + 1
   snow= new Snow(8000, minX, maxX, minY, maxY, minZ, maxX, scene)
   //scene.add( snow.flakes )
 
@@ -71,7 +71,9 @@ function init() {
   //document.body.appendChild( stats.dom );
 
   const controls = new OrbitControls( camera, renderer.domElement );
-  //controls.target.set( 0, 10, 0 );
+  camera.position.y += 0.3
+  controls.target.y += 0.3
+
   controls.update();
 }
 
@@ -205,6 +207,20 @@ document.body.addEventListener("keydown", function(e) {
         snow.init()
       }
       break
+
+    case e.key == "S":
+      {
+        snow.hide()
+      }
+      break
+
+
+    case e.key == "r":
+      {
+        snow.reset()
+      }
+      break
+
 
 
     default:
