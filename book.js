@@ -12,7 +12,7 @@ const TO_RADIANS = Math.PI/180.0
 
 export class Page {
 
-  constructor(idx, width, height) {
+  constructor(idx, numPages, width, height) {
     const geometry = this.plateGeometry(width, height, 9, 1)
 
     this.idx = idx
@@ -38,11 +38,16 @@ export class Page {
     //this.ease = new CubicBezier(0.0 , 0.0, 0.58, 1.0)
     this.ease = new CubicBezier(0.42, 0.0, 0.58, 1.0) // ease-in-out 
 
-    const angBase = - 10
-    const ang0 = angBase + idx / 2
+    const angBase = - 7
+    const ang0 = angBase //+ idx / 2
     const ang1 = ang0 - (180 + angBase * 2)
+
+    const dz = 0.2 / numPages
+    const z0 = (numPages - 1 - idx) * dz
+    const z1 = idx * dz - (numPages - 1) * dz 
     this.bendingKeyframes = new Map([[0,    0], [0.5, 15], [1,    0]])
     this.pagingKeyframes  = new Map([[0, ang0],            [1, ang1]])
+    this.offsetZKeyframes = new Map([[0,   z0], [0.5, z0], [1,   z1]])
 
     this.updatePositions()
   }
@@ -90,6 +95,7 @@ export class Page {
       let   z1 = this.initPos[i1 + 2]
       let   v = new THREE.Vector3(x1-x0, y1-y0, z1-z0)
 
+
       for (let i = 0; i < wsegs; i++) {
         const i0 = 3*( j * wvers + i  )
         const i1 = 3*( j * wvers + i+1)
@@ -114,6 +120,10 @@ export class Page {
         v = new THREE.Vector3(x1-x0, y1-y0, z1-z0)
       }
     }
+
+    const oz = this.offsetZ()
+    this.mesh.position.z = oz
+
     posAttr.needsUpdate = true
     geometry.computeVertexNormals()
   }
@@ -121,14 +131,22 @@ export class Page {
   angle(rate) {
     const timeRate = this.time / this.speedSec
     const t = this.ease(timeRate) 
-    const pa = this.getAngle(t, this.pagingKeyframes)
-    const ba = this.getAngle(t, this.bendingKeyframes)
+    const pa = this.fromKeyframes(t, this.pagingKeyframes)
+    const ba = this.fromKeyframes(t, this.bendingKeyframes)
 
     const ang = ( rate == 0  ) ? pa : ba
     return ang
   }
 
-  getAngle(t, keyframes) {
+  offsetZ() {
+    const timeRate = this.time / this.speedSec
+    //const t = this.ease(timeRate) 
+    const t  = timeRate
+    const oz = this.fromKeyframes(t, this.offsetZKeyframes)
+    return oz
+  }
+
+  fromKeyframes(t, keyframes) {
     let t0 = 0
     let a0 = 0
     let t1 = 0
@@ -192,7 +210,7 @@ export class Book {
     this.height = height
     this.pages = []
     for (let i = 0; i < numPages; i++) {
-      const page = new Page(i, this.width, this.height)
+      const page = new Page(i, numPages, this.width, this.height)
       this.pages.push(page) 
     }
     this.paged = 0
