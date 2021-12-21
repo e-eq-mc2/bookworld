@@ -33,7 +33,7 @@ function createWindow () {
   mainWindow.loadFile('index.html')
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   return mainWindow
 }
@@ -62,6 +62,11 @@ app.whenReady().then(() => {
   globalShortcut.register('Ctrl+B', function() {
     // 2x 1920x1080 
     win.setSize(3840, 1080)
+  })
+
+  globalShortcut.register('Ctrl+H', function() {
+    // 1x 1920x1080 
+    win.setSize(1920, 1080)
   })
 })
 

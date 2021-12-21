@@ -12,7 +12,7 @@ const TO_RADIANS = Math.PI/180.0
 
 export class Page {
 
-  constructor(idx, width = 10, height = 13) {
+  constructor(idx, width, height) {
     const geometry = this.plateGeometry(width, height, 9, 1)
 
     this.idx = idx
@@ -158,8 +158,8 @@ export class Page {
     const tex0  = new THREE.TextureLoader().load( fname0 )
     const tex1  = new THREE.TextureLoader().load( fname1 )
 
-    const mat0 = new THREE.MeshBasicMaterial({map: tex0, side: THREE.FrontSide});
-    const mat1 = new THREE.MeshBasicMaterial({map: tex1, side: THREE.BackSide});
+    const mat0 = new THREE.MeshBasicMaterial({map: tex0, side: THREE.FrontSide, depthWrite: true});
+    const mat1 = new THREE.MeshBasicMaterial({map: tex1, side: THREE.BackSide, depthWrite: true});
     const mats = [mat0, mat1]
 
     return mats
@@ -167,10 +167,12 @@ export class Page {
 }
 
 export class Book {
-  constructor(numPages) {
+  constructor(numPages, width, height) {
+    this.width  = width
+    this.height = height
     this.pages = []
     for (let i = 0; i < numPages; i++) {
-      const page = new Page(i)
+      const page = new Page(i, this.width, this.height)
       this.pages.push(page) 
     }
     this.paged = 0

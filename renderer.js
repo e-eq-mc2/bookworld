@@ -19,7 +19,7 @@ let renderer, scene, camera, stats
 let mouseX = 0
 let mouseY = 0
 
-let book
+let book, snow
 
 init()
 let lastUpdate = performance.now()
@@ -42,19 +42,25 @@ function init() {
     1000 
   );
 
-	camera.position.z = 18
+	camera.position.z = 20
 	scene.add(camera);
 
   const axesHelper = new THREE.AxesHelper( 5 )
-  scene.add( axesHelper )
+  //scene.add( axesHelper )
 
-
-  book = new Book(20)
+  book = new Book(20, 12, 10)
   book.eachPage((p) => {
     scene.add( p.mesh )
   })
 
-	container.appendChild( renderer.domElement );
+  const minX = -50
+  const maxX =  50
+  const minY = - book.height / 2
+  const maxY = book.height * 4
+  const minZ = -50
+  const maxZ =  50
+  snow= new Snow(8000, minX, maxX, minY, maxY, minZ, maxX, scene)
+  //scene.add( snow.flakes )
 
 	//document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	//document.addEventListener( 'touchstart', onDocumentTouchStart, false );
@@ -123,6 +129,8 @@ function render() {
   book.update(deltaT)
   lastUpdate = now
 
+  snow.update(deltaT)
+
 	renderer.render(scene, camera)		
   stats.update()
 }
@@ -132,9 +140,6 @@ document.body.addEventListener("keydown", function(e) {
   console.log(`key: ${e.key}`);
 
   switch(true) {
-    case e.key == 'p':
-      console.log(book.pages[0])
-      break
     case e.key == 'f':
       book.goForward() 
       //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
@@ -145,7 +150,66 @@ document.body.addEventListener("keydown", function(e) {
       //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
       break
 
+
+    case e.key == '0':
+      snow.colormap.set('black')
+      break
+    case e.key == '1':
+      snow.colormap.set('white')
+      break
+    case e.key == '2':
+      snow.colormap.set('blue-black')
+      break
+    case e.key == '3':
+      snow.colormap.set('aqua-black')
+      break
+    case e.key == '4':
+      snow.colormap.set('green-black')
+      break
+    case e.key == '5':
+      snow.colormap.set('yellow-black')
+      break
+    case e.key == '6':
+      snow.colormap.set('red-black')
+      break
+    case e.key == '7':
+      snow.colormap.set('rose-black')
+      break
+    case e.key == '8':
+      snow.colormap.set('purple-black')
+      break
+    case e.key == 'm':
+      snow.colormap.set('mix-black')
+
+    case e.key == "W":
+      {
+        let b = Math.cbrt(snow.colormap.getBlackRate())
+        b += 0.1
+        b = b ** 3
+        snow.colormap.setBlackRate(b)
+      }
+      break
+
+    case e.key == "w":
+      {
+
+        let b = Math.cbrt(snow.colormap.getBlackRate())
+        b -= 0.1
+        b = b >= 0 ? b ** 3 : 0
+        snow.colormap.setBlackRate(b)
+      }
+      break
+
+    case e.key == "s":
+      {
+        snow.init()
+      }
+      break
+
+
     default:
       break
   }
+  snow.colormap.setBlackRate(0)
+  snow.changeColor()
 });

@@ -8,26 +8,31 @@ const TO_RADIANS = Math.PI/180.0
 
 export class Snow {
 
-  constructor(num, rangeMin = -1000, rangeMax = 1000) {
+  constructor(num, minX, maxX, minY, maxY, minZ, maxZ, scene) {
     this.num = num
-    this.rangeMinX = rangeMin
-    this.rangeMaxX = rangeMax
-    this.rangeMinY = rangeMin/2
-    this.rangeMaxY = rangeMax/2
-    this.rangeMinZ = rangeMin/2
-    this.rangeMaxZ = rangeMax/2
+    this.rangeMinX = minX
+    this.rangeMaxX = maxX
+    this.rangeMinY = minY
+    this.rangeMaxY = maxY
+    this.rangeMinZ = minZ
+    this.rangeMaxZ = maxZ
 
+    this.scene = scene
+
+    this.dwell    = new Array(num).fill(0)
+    this.maxDwell = 5
 
     this.colormap   = new Colormap('white')
-    this.colormap.setBlackRate(0.0)
+  }
 
+  init() {
     const positions = new Float32Array(this.num * 3)
     const colors    = new Float32Array(this.num * 3)
 
     const color = new THREE.Color()
     for (let i = 0; i < this.num; i++) {
       const x = Common.randomReal(this.rangeMinX, this.rangeMaxX) 
-      const y = Common.randomReal(this.rangeMinY, this.rangeMaxY)
+      const y = Common.randomReal(this.rangeMaxY, this.rangeMaxY * 4)
       const z = Common.randomReal(this.rangeMinZ, this.rangeMaxZ)
 
       positions[i * 3 + 0] = x
@@ -53,16 +58,16 @@ export class Snow {
 
     const material = new THREE.PointsMaterial({
       color: 0xffffff, 
-      size: 40, 
+      size: 0.5, 
       map: texture, 
       transparent: true, 
       vertexColors: true,
       blending: THREE.AdditiveBlending, 
-      depthTest: false, 
+      depthWrite: false
+      //depthTest: false, 
     });
 
-
-    this.flakes = new THREE.Points( geometry, material );
+    this.flakes = new THREE.Points( geometry, material )
 
     this.velocities = []
     this.gravities  = []
@@ -80,6 +85,8 @@ export class Snow {
       this.gravities.push(g)
       this.drags.push(d)
     }
+
+    this.scene.add(this.flakes)
 
   }
 
@@ -101,36 +108,46 @@ export class Snow {
     this.flakes.geometry.attributes.color.needsUpdate = true
   }
 
-  updatePhysics() {
+  update(dt) {
+    if ( this.flakes === void 0  )  return
+
     const positions = this.flakes.geometry.attributes.position.array
 
     const rangeX = this.rangeMaxX - this.rangeMinX
     const rangeY = this.rangeMaxY - this.rangeMinY
     const rangeZ = this.rangeMaxZ - this.rangeMinZ
     for (let i = 0; i < this.num; i++) {
-      const v = this.velocities[i]
-      const g = this.gravities[i]
-      const d = this.drags[i]
-
-      v.multiplyScalar(d)
-      v.add(g)
 
       let x = positions[i * 3 + 0]
       let y = positions[i * 3 + 1]
       let z = positions[i * 3 + 2]
 
-      x += v.x
-      y += v.y
-      z += v.z
+      const dwell = this.dwell[i]
 
-      if      ( y < this.rangeMinY ) y += rangeY
+      if ( this.shouldProceed(dwell, x, y, z) ) {
+        const v = this.velocities[i]
+        const g = this.gravities[i]
+        const d = this.drags[i]
+
+        v.multiplyScalar(d)
+        v.add(g)
+        x += v.x * dt
+        y += v.y * dt
+        z += v.z * dt
+      } else {
+        if ( this.isDwelling(dwell) ) {
+          this.dwell[i] += dt
+        } else {
+          if ( y < this.rangeMinY ) y += rangeY
+          this.dwell[i] = 0 
+        }
+      }
 
       if      ( x > this.rangeMaxX ) x -= rangeX
       else if ( x < this.rangeMinX ) x += rangeX
 
       if      ( z > this.rangeMaxZ ) z -= rangeZ
       else if ( z < this.rangeMinZ ) z += rangeZ
-
       positions[i * 3 + 0] = x 
       positions[i * 3 + 1] = y 
       positions[i * 3 + 2] = z 
@@ -138,6 +155,15 @@ export class Snow {
 
     this.flakes.geometry.attributes.position.needsUpdate = true
   }
+
+  shouldProceed(dwell, x, y, z) {
+    return dwell == 0 && y > this.rangeMinY
+  }
+
+  isDwelling(dwell) {
+    return dwell < this.maxDwell
+  }
+
 
   rotateX(v, angle) {
     const axis = new THREE.Vector3(1, 0, 0)
