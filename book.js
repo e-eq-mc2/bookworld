@@ -17,10 +17,10 @@ export class Page {
 
     this.idx = idx
     //const idx0 = this.idx
-    const idx0 = idx
+    const idx0 = idx * 2 + 1
     const idx1 = idx0 + 1
-    const fname0 = `img/${1}.png`
-    const fname1 = `img/${1}.png`
+    const fname0 = `img/${idx0}.png`
+    const fname1 = `img/${idx1}.png`
     const material = this.plateMaterials(fname0, fname1)
 
     this.mesh = createMultiMaterialObject(geometry, material)
@@ -38,8 +38,11 @@ export class Page {
     //this.ease = new CubicBezier(0.0 , 0.0, 0.58, 1.0)
     this.ease = new CubicBezier(0.42, 0.0, 0.58, 1.0) // ease-in-out 
 
-    this.bendingKeyframes = new Map([[0,  0], [0.5, 15], [1,    0]])
-    this.pagingKeyframes  = new Map([[0, -7],            [1, -173]])
+    const angBase = - 10
+    const ang0 = angBase + idx / 2
+    const ang1 = ang0 - (180 + angBase * 2)
+    this.bendingKeyframes = new Map([[0,    0], [0.5, 15], [1,    0]])
+    this.pagingKeyframes  = new Map([[0, ang0],            [1, ang1]])
 
     this.updatePositions()
   }
@@ -157,6 +160,9 @@ export class Page {
   plateMaterials(fname0, fname1) {
     const tex0  = new THREE.TextureLoader().load( fname0 )
     const tex1  = new THREE.TextureLoader().load( fname1 )
+
+    tex1.wrapS = THREE.RepeatWrapping
+    tex1.repeat.x = -1
 
     const mat0 = new THREE.MeshBasicMaterial({
       map:         tex0, 

@@ -42,13 +42,13 @@ function init() {
     500 
   );
 
-	camera.position.z = 16
+	camera.position.z = 18
 	scene.add(camera)
 
   const axesHelper = new THREE.AxesHelper( 5 )
   //scene.add( axesHelper )
 
-  book = new Book(20, 10.24, 9.44)
+  book = new Book(16, 10.24, 9.44)
   book.eachPage((p) => {
     scene.add( p.mesh )
   })
