@@ -42,7 +42,7 @@ function init() {
     500 
   );
 
-	camera.position.z = 18
+	camera.position.z = 13
 	scene.add(camera)
 
   const axesHelper = new THREE.AxesHelper( 5 )

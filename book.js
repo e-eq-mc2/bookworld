@@ -38,7 +38,7 @@ export class Page {
     //this.ease = new CubicBezier(0.0 , 0.0, 0.58, 1.0)
     this.ease = new CubicBezier(0.42, 0.0, 0.58, 1.0) // ease-in-out 
 
-    const angBase = - 7
+    const angBase = - 5
     const ang0 = angBase //+ idx / 2
     const ang1 = ang0 - (180 + angBase * 2)
 
