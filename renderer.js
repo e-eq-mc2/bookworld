@@ -48,7 +48,7 @@ function init() {
   const axesHelper = new THREE.AxesHelper( 5 )
   //scene.add( axesHelper )
 
-  book = new Book(16, 10.24, 9.44)
+  book = new Book(6, 10, 10 * (3.0 / 4))
   book.eachPage((p) => {
     scene.add( p.mesh )
   })

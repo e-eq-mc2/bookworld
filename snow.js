@@ -19,10 +19,9 @@ export class Snow {
 
     this.scene = scene
 
-    this.dwell    = new Array(num).fill(0)
-    this.maxDwell = 5
 
-    this.colormap   = new Colormap('white')
+
+    this.colormap   = new Colormap('rose')
   }
 
   init() {
@@ -55,8 +54,8 @@ export class Snow {
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     geometry.setAttribute(   'color', new THREE.BufferAttribute(   colors, 3))
 
-    //const fileName = `img/fish_10.png`
-    const fileName = `img/snowflake.png`
+    //const fileName = `img/snowflake.png`
+    const fileName = `img/cb.png`
     const texture  = new THREE.TextureLoader().load( fileName )
 
     const material = new THREE.PointsMaterial({
@@ -72,21 +71,25 @@ export class Snow {
 
     this.flakes = new THREE.Points( geometry, material )
 
+    this.dwell    = new Array(this.num).fill(0)
+    this.maxDwell = 0
+
+    this.gravity = -9.8 // m/s^2
+    this.fr      = 4.0
+    this.wind    = new THREE.Vector3(0, 0, 0)
+
     this.velocities = []
-    this.gravities  = []
-    this.drags      = []
+    this.keep       = []
+    this.maxKeep    = []
 
     for (let i = 0; i < this.num; i++) {
       const v = new THREE.Vector3(0, -2, 0)
-      const g = new THREE.Vector3(0,0,0)
-      const d = 1
-
       this.rotateX(v, Common.random(-45,  45) * TO_RADIANS) 
       this.rotateY(v, Common.random(  0, 360) * TO_RADIANS)
-
       this.velocities.push(v)
-      this.gravities.push(g)
-      this.drags.push(d)
+
+      this.keep.push(0) 
+      this.maxKeep.push(Common.randomReal(  1, 5)) 
     }
 
     this.scene.add(this.flakes)
@@ -125,15 +128,18 @@ export class Snow {
       let y = positions[i * 3 + 1]
       let z = positions[i * 3 + 2]
 
-      const dwell = this.dwell[i]
+      const dwell   = this.dwell[i]
 
       if ( this.shouldProceed(dwell, x, y, z) ) {
         const v = this.velocities[i]
-        const g = this.gravities[i]
-        const d = this.drags[i]
 
-        v.multiplyScalar(d)
-        v.add(g)
+        const l  = v.length()
+        const dragMagnitude = this.fr * l
+
+        v.x += (- dragMagnitude * (v.x - this.wind.x)               ) * dt
+        v.y += (- dragMagnitude * (v.y - this.wind.y) + this.gravity) * dt
+        v.z += (- dragMagnitude * (v.z - this.wind.z)               ) * dt
+
         x += v.x * dt
         y += v.y * dt
         z += v.z * dt
@@ -187,10 +193,15 @@ export class Snow {
     return dwell == 0 && y > this.rangeMinY
   }
 
+  shouldChange(i) {
+    const keep    = this.keep[i]
+    const maxKeep = this.maxKeep[i]
+    return keep > maxKeep
+  }
+
   isDwelling(dwell) {
     return dwell < this.maxDwell
   }
-
 
   rotateX(v, angle) {
     const axis = new THREE.Vector3(1, 0, 0)
@@ -210,6 +221,4 @@ export class Snow {
     return v
   }
 }
-
-
 
