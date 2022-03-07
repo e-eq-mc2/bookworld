@@ -17,12 +17,12 @@ export class Page {
 
     this.idx = idx
     //const idx0 = this.idx
-    const idx0 = idx * 2 + 1
+    const idx0 = idx * 2 //+ 1
     const idx1 = idx0 + 1
-    //const fname0 = `img/${idx0}.jpeg`
-    //const fname1 = `img/${idx1}.jpeg`
-    const fname0 = `img/memories/memories.${idx0.toString().padStart(3, '0')}.jpeg`
-    const fname1 = `img/memories/memories.${idx1.toString().padStart(3, '0')}.jpeg`
+    const fname0 = `img/${idx0}.png`
+    const fname1 = `img/${idx1}.png`
+    //const fname0 = `img/memories/memories.${idx0.toString().padStart(3, '0')}.jpeg`
+    //const fname1 = `img/memories/memories.${idx1.toString().padStart(3, '0')}.jpeg`
     console.log(fname0)
     const material = this.plateMaterials(fname0, fname1)
 

@@ -19,8 +19,6 @@ export class Snow {
 
     this.scene = scene
 
-
-
     this.colormap   = new Colormap('rose')
   }
 
@@ -60,7 +58,7 @@ export class Snow {
 
     const material = new THREE.PointsMaterial({
       color: 0xffffff, 
-      size: 0.5, 
+      size: 0.3, 
       map: texture, 
       transparent: true, 
       vertexColors: true,
@@ -71,14 +69,15 @@ export class Snow {
 
     this.flakes = new THREE.Points( geometry, material )
 
-    this.dwell    = new Array(this.num).fill(0)
-    this.maxDwell = 0
-
+    this.time    =  0
     this.gravity = -9.8 // m/s^2
     this.fr      = 4.0
     this.wind    = new THREE.Vector3(0, 0, 0)
 
+
     this.velocities = []
+    this.dwell      = []
+    this.maxDwell   = 0
     this.keep       = []
     this.maxKeep    = []
 
@@ -88,6 +87,7 @@ export class Snow {
       this.rotateY(v, Common.random(  0, 360) * TO_RADIANS)
       this.velocities.push(v)
 
+      this.dwell.push(0) 
       this.keep.push(0) 
       this.maxKeep.push(Common.randomReal(  1, 5)) 
     }
@@ -113,9 +113,23 @@ export class Snow {
     this.flakes.geometry.attributes.color.needsUpdate = true
   }
 
+
+  updateWind() {
+    const w  = 0.3 * (Math.sin(0.51 * this.time) + Math.sin(0.73 * this.time) + Math.sin(0.37 * this.time) + Math.sin(0.79 * this.time)) ** 2
+    const wy = 0.1 * (Math.sin(1.43 * this.time) + Math.sin(1.97 * this.time) + Math.sin(1.19 * this.time))
+    const wz = 0.1 * (Math.sin(1.71 * this.time) + Math.sin(1.37 * this.time) + Math.sin(1.13 * this.time))
+    const wrand = (2 + Math.sin(23.84 * this.time) + Math.sin(17.57 * this.time)) / 4
+    this.wind.x = w 
+    this.wind.y = wy * w
+    this.wind.z = wz * w
+  }
+
   update(dt) {
     if ( this.flakes === void 0  )  return
     if ( this.shouldStop         )  return
+
+    this.updateWind()
+
 
     const positions = this.flakes.geometry.attributes.position.array
 
@@ -163,6 +177,8 @@ export class Snow {
     }
 
     this.flakes.geometry.attributes.position.needsUpdate = true
+
+    this.time += dt
   }
 
 
