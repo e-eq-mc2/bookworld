@@ -53,36 +53,35 @@ export class Snow {
     geometry.setAttribute(   'color', new THREE.BufferAttribute(   colors, 3))
 
     //const fileName = `img/snowflake.png`
-    const fileName = `img/cb.png`
+    const fileName = `img/cb2.png`
     const texture  = new THREE.TextureLoader().load( fileName )
 
     const material = new THREE.PointsMaterial({
       color: 0xffffff, 
-      size: 0.3, 
+      size: 0.1, 
       map: texture, 
       transparent: true, 
       vertexColors: true,
       blending: THREE.AdditiveBlending, 
-      depthWrite: false
+      depthWrite: false,
       //depthTest: false, 
     });
 
     this.flakes = new THREE.Points( geometry, material )
 
-    this.time    =  0
-    this.gravity = -9.8 // m/s^2
-    this.fr      = 4.0
-    this.wind    = new THREE.Vector3(0, 0, 0)
+    this.time         =  9
+    this.velocityBase = new THREE.Vector3(0, - 0.6, 0)
+    this.wind         = new THREE.Vector3(0,     0, 0)
 
 
     this.velocities = []
     this.dwell      = []
-    this.maxDwell   = 0
+    this.maxDwell   = 30
     this.keep       = []
     this.maxKeep    = []
 
     for (let i = 0; i < this.num; i++) {
-      const v = new THREE.Vector3(0, -2, 0)
+      const v = new THREE.Vector3(0, -1, 0)
       this.rotateX(v, Common.random(-45,  45) * TO_RADIANS) 
       this.rotateY(v, Common.random(  0, 360) * TO_RADIANS)
       this.velocities.push(v)
@@ -115,13 +114,15 @@ export class Snow {
 
 
   updateWind() {
-    const w  = 0.3 * (Math.sin(0.51 * this.time) + Math.sin(0.73 * this.time) + Math.sin(0.37 * this.time) + Math.sin(0.79 * this.time)) ** 2
-    const wy = 0.1 * (Math.sin(1.43 * this.time) + Math.sin(1.97 * this.time) + Math.sin(1.19 * this.time))
-    const wz = 0.1 * (Math.sin(1.71 * this.time) + Math.sin(1.37 * this.time) + Math.sin(1.13 * this.time))
-    const wrand = (2 + Math.sin(23.84 * this.time) + Math.sin(17.57 * this.time)) / 4
-    this.wind.x = w 
-    this.wind.y = wy * w
-    this.wind.z = wz * w
+    const t = this.time * 0.3
+    const wx  = 0.4 * (Math.sin(0.51 * t) + Math.sin(0.73 * t) + Math.sin(0.37 * t) + Math.sin(0.79 * t) ) ** 2
+                + 0.35
+    const wy = 0.05 * (Math.sin(1.43 * t) + Math.sin(1.97 * t) + Math.sin(1.19 * t))
+    const wz = 0.1 * (Math.sin(1.71 * t) + Math.sin(1.37 * t) + Math.sin(1.13 * t))
+    const wrand = (2 + Math.sin(23.84 * t) + Math.sin(17.57 * t)) / 4
+    this.wind.x = wx 
+    this.wind.y = wy
+    this.wind.z = wz * wx
   }
 
   update(dt) {
@@ -129,7 +130,6 @@ export class Snow {
     if ( this.shouldStop         )  return
 
     this.updateWind()
-
 
     const positions = this.flakes.geometry.attributes.position.array
 
@@ -147,12 +147,14 @@ export class Snow {
       if ( this.shouldProceed(dwell, x, y, z) ) {
         const v = this.velocities[i]
 
-        const l  = v.length()
-        const dragMagnitude = this.fr * l
-
-        v.x += (- dragMagnitude * (v.x - this.wind.x)               ) * dt
-        v.y += (- dragMagnitude * (v.y - this.wind.y) + this.gravity) * dt
-        v.z += (- dragMagnitude * (v.z - this.wind.z)               ) * dt
+        const nz = ( (z - this.rangeMinZ) / rangeZ ) 
+        const wx = this.wind.x * ( 1.0 + Math.cos(nz * Math.PI * 2 * 4) )
+        const wy = this.wind.y
+        const wz = this.wind.z
+        
+        v.x =  this.velocityBase.x + wx
+        v.y =  this.velocityBase.y + wy
+        v.z =  this.velocityBase.z + wz
 
         x += v.x * dt
         y += v.y * dt

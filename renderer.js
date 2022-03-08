@@ -36,30 +36,31 @@ function init() {
 	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera(
-    55, 
+    55,
     window.innerWidth / window.innerHeight,
     0.01, 
-    500 
+    100 
   );
 
-	camera.position.z = 13
+	camera.position.z = 15
+	camera.position.y = 1
 	scene.add(camera)
 
   const axesHelper = new THREE.AxesHelper( 5 )
   //scene.add( axesHelper )
 
-  book = new Book(6, 10, 10 * (1080 / 1920))
+  book = new Book(17, 10, 10 * (1080 / 1920))
   book.eachPage((p) => {
     scene.add( p.mesh )
   })
 
-  const minX = -40
-  const maxX =  40
+  const minX = -30
+  const maxX =  30
   const minY = - book.height / 2
-  const maxY =   book.height * 4
-  const minZ = -55
-  const maxZ =  camera.position.z + 1
-  snow= new Snow(8000, minX, maxX, minY, maxY, minZ, maxX, scene)
+  const maxY =   book.height * 3
+  const minZ = -20
+  const maxZ =  camera.position.z - 5
+  snow= new Snow(12000, minX, maxX, minY, maxY, minZ, maxX, scene)
   //scene.add( snow.flakes )
 
 	//document.addEventListener( 'mousemove', onDocumentMouseMove, false );

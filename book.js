@@ -13,7 +13,7 @@ const TO_RADIANS = Math.PI/180.0
 export class Page {
 
   constructor(idx, numPages, width, height) {
-    const geometry = this.plateGeometry(width, height, 9, 1)
+    const geometry = this.plateGeometry(width, height, 10, 1)
 
     this.idx = idx
     //const idx0 = this.idx
@@ -24,6 +24,7 @@ export class Page {
     //const fname0 = `img/memories/memories.${idx0.toString().padStart(3, '0')}.jpeg`
     //const fname1 = `img/memories/memories.${idx1.toString().padStart(3, '0')}.jpeg`
     console.log(fname0)
+    console.log(fname1)
     const material = this.plateMaterials(fname0, fname1)
 
     this.mesh = createMultiMaterialObject(geometry, material)
@@ -32,7 +33,7 @@ export class Page {
     this.initPos = this.mesh.children[0].geometry.getAttribute("position").clone().array
 
     this.time = 0
-    this.speedSec = 3.5
+    this.speedSec = 4
     this.doPaging = false
     this.direction = +1
 
@@ -41,7 +42,7 @@ export class Page {
     //this.ease = new CubicBezier(0.0 , 0.0, 0.58, 1.0)
     this.ease = new CubicBezier(0.42, 0.0, 0.58, 1.0) // ease-in-out 
 
-    const angBase = - 5
+    const angBase = - 7
     const ang0 = angBase //+ idx / 2
     const ang1 = ang0 - (180 + angBase * 2)
 
@@ -189,14 +190,14 @@ export class Page {
       map:         tex0, 
       side:        THREE.FrontSide, 
       depthWrite:  true,
-      transparent: true,
+      //transparent: true,
       alphaTest:   0.5
     });
     const mat1 = new THREE.MeshBasicMaterial({
       map:         tex1, 
       side:        THREE.BackSide,
       depthWrite:  true,
-      transparent: true,
+      //transparent: true,
       alphaTest:   0.5
     });
  
