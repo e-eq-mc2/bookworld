@@ -22,7 +22,8 @@ export class Page {
     this.initPos = this.mesh.children[0].geometry.getAttribute("position").clone().array
 
     this.time = 0
-    this.speedSec = 4
+    this.speedSecFron = 3
+    this.speedSecBack = 3
     this.doPaging = false
     this.direction = +1
 
@@ -45,6 +46,10 @@ export class Page {
     this.updatePositions()
   }
 
+  speedSec() {
+    return this.direction > 0 ? this.speedSecFront : this.speedSecBack
+  }
+
   update(dt) {
     if ( ! this.doPaging ) return
     this.time += dt * this.direction
@@ -55,8 +60,8 @@ export class Page {
       this.time = 0
       this.doPaging = false
     }
-    if ( this.time > this.speedSec ) {
-      this.time = this.speedSec
+    if ( this.time > this.speedSec() ) {
+      this.time = this.speedSec()
       this.doPaging = false
     }
 
@@ -122,7 +127,7 @@ export class Page {
   }
 
   angle(rate) {
-    const timeRate = this.time / this.speedSec
+    const timeRate = this.time / this.speedSec()
     const t = this.ease(timeRate) 
     const pa = this.fromKeyframes(t, this.pagingKeyframes)
     const ba = this.fromKeyframes(t, this.bendingKeyframes)
@@ -132,7 +137,7 @@ export class Page {
   }
 
   offsetZ() {
-    const timeRate = this.time / this.speedSec
+    const timeRate = this.time / this.speedSec()
     //const t = this.ease(timeRate) 
     const t  = timeRate
     const oz = this.fromKeyframes(t, this.offsetZKeyframes)

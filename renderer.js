@@ -3,7 +3,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { Sakura }  from  './sakura.js'
 import { Book, Page }  from  './book.js'
-import { ClosingCredits, Credit }  from  './closingcredits.js'
 const Common = require("./lib/common.js")
 
 function randomRange(min, max) {
@@ -20,7 +19,7 @@ let renderer, scene, camera, stats
 let mouseX = 0
 let mouseY = 0
 
-let book, closingcredits, sakura
+let book, sakura
 
 init()
 let lastUpdate = performance.now()
@@ -43,12 +42,12 @@ function init() {
     100 
   );
 
-	camera.position.z = 15
+	camera.position.z = 14
 	camera.position.y = 1
 	scene.add(camera)
 
   // 環境光源
-  const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.3)
+  const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.2)
   scene.add(ambientLight)
 
   // 平行光源
@@ -62,16 +61,11 @@ function init() {
 
   const bookWidth   = 10
   const bookHeight  = 10 * (1080 / 1920)
-  const albumPages = [23, 22, 22, 22, 22]
+  const albumPages = [23, 22, 22, 22, 22, 34]
   book = new Book(albumPages, bookWidth, bookHeight)
   book.eachPage((p) => {
     scene.add( p.mesh )
   })
-
-  //closingcredits = new ClosingCredits(10, 8, 8 * (1080 / 1920))
-  //closingcredits.eachCredit((c) => {
-  //  //scene.add( c.mesh )
-  //})
 
   const minX = -20
   const maxX =  20
@@ -93,6 +87,7 @@ function init() {
   const controls = new OrbitControls( camera, renderer.domElement );
   camera.position.y += 0.3
   controls.target.y += 0.3
+  controls.zoomSpeed = 0.05
 
   controls.update();
 }
@@ -149,7 +144,6 @@ function render() {
     console.log(now, lastUpdate)
   }
   book.update(deltaT)
-  //closingcredits.update(deltaT)
   lastUpdate = now
 
   sakura.update(deltaT)
@@ -170,18 +164,6 @@ document.body.addEventListener("keydown", function(e) {
 
     case e.key == 'b':
       book.goBack() 
-      //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
-      break
-
-    case e.key == 'c':
-      //closingcredits.doPaging = true
-      //closingcredits.goForward() 
-      //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
-      break
-
-    case e.key == 'C':
-      //closingcredits.doPaging = false
-      //closingcredits.goBack() 
       //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
       break
 
@@ -252,8 +234,6 @@ document.body.addEventListener("keydown", function(e) {
         sakura.reset()
       }
       break
-
-
 
     default:
       break
