@@ -22,8 +22,8 @@ export class Page {
     this.initPos = this.mesh.children[0].geometry.getAttribute("position").clone().array
 
     this.time = 0
-    this.speedSecFron = 3
-    this.speedSecBack = 3
+    this.speedSecFront = 3
+    this.speedSecBack  = 3
     this.doPaging = false
     this.direction = +1
 
