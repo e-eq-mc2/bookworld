@@ -12,20 +12,9 @@ const TO_RADIANS = Math.PI/180.0
 
 export class Page {
 
-  constructor(idx, numPages, width, height) {
+  constructor(idx, numSheets, img0, img1, width, height) {
     const geometry = this.plateGeometry(width, height, 10, 1)
-
-    this.idx = idx
-    //const idx0 = this.idx
-    const idx0 = idx * 2 //+ 1
-    const idx1 = idx0 + 1
-    const fname0 = `img/${idx0}.png`
-    const fname1 = `img/${idx1}.png`
-    //const fname0 = `img/memories/memories.${idx0.toString().padStart(3, '0')}.jpeg`
-    //const fname1 = `img/memories/memories.${idx1.toString().padStart(3, '0')}.jpeg`
-    console.log(fname0)
-    console.log(fname1)
-    const material = this.plateMaterials(fname0, fname1)
+    const material = this.plateMaterials(img0, img1)
 
     this.mesh = createMultiMaterialObject(geometry, material)
     this.mesh.translateX(width/2)
@@ -46,9 +35,9 @@ export class Page {
     const ang0 = angBase //+ idx / 2
     const ang1 = ang0 - (180 + angBase * 2)
 
-    const dz = 0.2 / numPages
-    const z0 = (numPages - 1 - idx) * dz
-    const z1 = idx * dz - (numPages - 1) * dz 
+    const dz = 0.2 / numSheets
+    const z0 = (numSheets - 1 - idx) * dz
+    const z1 = idx * dz - (numSheets - 1) * dz 
     this.bendingKeyframes = new Map([[0,    0], [0.5, 15], [1,    0]])
     this.pagingKeyframes  = new Map([[0, ang0],            [1, ang1]])
     this.offsetZKeyframes = new Map([[0,   z0], [0.5, z0], [1,   z1]])
@@ -179,21 +168,21 @@ export class Page {
     return geometry
   }
 
-  plateMaterials(fname0, fname1) {
-    const tex0  = new THREE.TextureLoader().load( fname0 )
-    const tex1  = new THREE.TextureLoader().load( fname1 )
+  plateMaterials(img0, img1) {
+    const tex0  = new THREE.TextureLoader().load( img0 )
+    const tex1  = new THREE.TextureLoader().load( img1 )
 
     tex1.wrapS = THREE.RepeatWrapping
     tex1.repeat.x = -1
 
-    const mat0 = new THREE.MeshBasicMaterial({
+    const mat0 = new THREE.MeshStandardMaterial({
       map:         tex0, 
-      side:        THREE.FrontSide, 
+      side:        THREE.FrontSide,
       depthWrite:  true,
       //transparent: true,
       alphaTest:   0.5
     });
-    const mat1 = new THREE.MeshBasicMaterial({
+    const mat1 = new THREE.MeshStandardMaterial({
       map:         tex1, 
       side:        THREE.BackSide,
       depthWrite:  true,
@@ -209,15 +198,43 @@ export class Page {
 }
 
 export class Book {
-  constructor(numPages, width, height) {
+  constructor(albumPages, width, height) {
     this.width  = width
     this.height = height
     this.pages = []
-    for (let i = 0; i < numPages; i++) {
-      const page = new Page(i, numPages, this.width, this.height)
+
+    const numPages  = albumPages.reduce((s, e)=>{return s + e}, 0)
+    const numSheets = numPages / 2
+
+    for (let idx = 0; idx < numSheets; idx++) {
+
+      const idx0 = idx * 2
+      const idx1 = idx0 + 1
+
+      const img0 = imgName(albumPages, idx0) 
+      const img1 = imgName(albumPages, idx1) 
+      console.log(img0)
+      console.log(img1)
+
+      const page = new Page(idx, numSheets, img0, img1, width, height)
       this.pages.push(page) 
     }
     this.paged = 0
+
+    // --- Local function ---
+    function imgName(albumPages, idx) {
+      let name = '' 
+      let bgn = 0 
+      let end = 0
+      for(let i = 0; i < albumPages.length; ++i) {
+        bgn = end
+        end += albumPages[i]
+        name = `img/omoide/album${i}/${idx - bgn}.png`
+        if ( bgn <= idx && idx < end ) break
+      }
+
+      return name
+    } 
   }
 
   eachPage(callback) {

@@ -6,7 +6,7 @@ const Colormap   = require("./lib/colormap.js")
 
 const TO_RADIANS = Math.PI/180.0
 
-export class Snow {
+export class Sakura {
 
   constructor(num, minX, maxX, minY, maxY, minZ, maxZ, scene) {
     this.num = num
@@ -53,7 +53,7 @@ export class Snow {
     geometry.setAttribute(   'color', new THREE.BufferAttribute(   colors, 3))
 
     //const fileName = `img/snowflake.png`
-    const fileName = `img/cb2.png`
+    const fileName = `img/sakura.png`
     const texture  = new THREE.TextureLoader().load( fileName )
 
     const material = new THREE.PointsMaterial({
@@ -94,7 +94,10 @@ export class Snow {
     this.scene.add(this.flakes)
   }
 
-  changeColor() {
+  changeColor(name) {
+    this.colormap.set(name)
+
+    if ( this.flakes === void 0 )  return
     const colors = this.flakes.geometry.attributes.color.array
 
     const color = new THREE.Color()

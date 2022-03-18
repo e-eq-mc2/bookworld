@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
-import { Snow }  from  './snow.js'
+import { Sakura }  from  './sakura.js'
 import { Book, Page }  from  './book.js'
+import { ClosingCredits, Credit }  from  './closingcredits.js'
 const Common = require("./lib/common.js")
 
 function randomRange(min, max) {
@@ -19,7 +20,7 @@ let renderer, scene, camera, stats
 let mouseX = 0
 let mouseY = 0
 
-let book, snow
+let book, closingcredits, sakura
 
 init()
 let lastUpdate = performance.now()
@@ -46,22 +47,40 @@ function init() {
 	camera.position.y = 1
 	scene.add(camera)
 
+  // 環境光源
+  const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.3)
+  scene.add(ambientLight)
+
+  // 平行光源
+  const directionalLight = new THREE.DirectionalLight(0xFFFFFF)
+  directionalLight.position.set(1, 50, 50)
+  // シーンに追加
+  scene.add(directionalLight);
+
   const axesHelper = new THREE.AxesHelper( 5 )
   //scene.add( axesHelper )
 
-  book = new Book(17, 10, 10 * (1080 / 1920))
+  const bookWidth   = 10
+  const bookHeight  = 10 * (1080 / 1920)
+  const albumPages = [23, 22, 22, 22, 22]
+  book = new Book(albumPages, bookWidth, bookHeight)
   book.eachPage((p) => {
     scene.add( p.mesh )
   })
 
-  const minX = -30
-  const maxX =  30
+  //closingcredits = new ClosingCredits(10, 8, 8 * (1080 / 1920))
+  //closingcredits.eachCredit((c) => {
+  //  //scene.add( c.mesh )
+  //})
+
+  const minX = -20
+  const maxX =  20
   const minY = - book.height / 2
   const maxY =   book.height * 3
   const minZ = -20
   const maxZ =  camera.position.z - 5
-  snow= new Snow(12000, minX, maxX, minY, maxY, minZ, maxX, scene)
-  //scene.add( snow.flakes )
+  sakura= new Sakura(4000, minX, maxX, minY, maxY, minZ, maxX, scene)
+  //scene.add( sakura.flakes )
 
 	//document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	//document.addEventListener( 'touchstart', onDocumentTouchStart, false );
@@ -130,9 +149,10 @@ function render() {
     console.log(now, lastUpdate)
   }
   book.update(deltaT)
+  //closingcredits.update(deltaT)
   lastUpdate = now
 
-  snow.update(deltaT)
+  sakura.update(deltaT)
 
 	renderer.render(scene, camera)		
   stats.update()
@@ -153,72 +173,83 @@ document.body.addEventListener("keydown", function(e) {
       //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
       break
 
+    case e.key == 'c':
+      //closingcredits.doPaging = true
+      //closingcredits.goForward() 
+      //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
+      break
+
+    case e.key == 'C':
+      //closingcredits.doPaging = false
+      //closingcredits.goBack() 
+      //console.log(book.current, book.currentPage().time,  book.currentPage().direction)
+      break
 
     case e.key == '0':
-      snow.colormap.set('black')
+      sakura.changeColor('black')
       break
     case e.key == '1':
-      snow.colormap.set('white')
+      sakura.changeColor('white')
       break
     case e.key == '2':
-      snow.colormap.set('blue-black')
+      sakura.changeColor('blue-black')
       break
     case e.key == '3':
-      snow.colormap.set('aqua-black')
+      sakura.changeColor('aqua-black')
       break
     case e.key == '4':
-      snow.colormap.set('green-black')
+      sakura.changeColor('green-black')
       break
     case e.key == '5':
-      snow.colormap.set('yellow-black')
+      sakura.changeColor('yellow-black')
       break
     case e.key == '6':
-      snow.colormap.set('red-black')
+      sakura.changeColor('red-black')
       break
     case e.key == '7':
-      snow.colormap.set('rose-black')
+      sakura.changeColor('rose-black')
       break
     case e.key == '8':
-      snow.colormap.set('purple-black')
+      sakura.changeColor('purple-black')
       break
     case e.key == 'm':
-      snow.colormap.set('mix-black')
+      sakura.changeColor('mix-black')
 
     case e.key == "W":
       {
-        let b = Math.cbrt(snow.colormap.getBlackRate())
+        let b = Math.cbrt(sakura.colormap.getBlackRate())
         b += 0.1
         b = b ** 3
-        snow.colormap.setBlackRate(b)
+        sakura.colormap.setBlackRate(b)
       }
       break
 
     case e.key == "w":
       {
 
-        let b = Math.cbrt(snow.colormap.getBlackRate())
+        let b = Math.cbrt(sakura.colormap.getBlackRate())
         b -= 0.1
         b = b >= 0 ? b ** 3 : 0
-        snow.colormap.setBlackRate(b)
+        sakura.colormap.setBlackRate(b)
       }
       break
 
     case e.key == "s":
       {
-        snow.init()
+        sakura.init()
       }
       break
 
     case e.key == "S":
       {
-        snow.hide()
+        sakura.hide()
       }
       break
 
 
     case e.key == "r":
       {
-        snow.reset()
+        sakura.reset()
       }
       break
 
@@ -227,6 +258,4 @@ document.body.addEventListener("keydown", function(e) {
     default:
       break
   }
-  snow.colormap.setBlackRate(0)
-  snow.changeColor()
 });
