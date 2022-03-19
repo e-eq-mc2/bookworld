@@ -26,7 +26,7 @@ let lastUpdate = performance.now()
 animate()
 
 function init() {
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  renderer = new THREE.WebGLRenderer( { antialias: true,  logarithmicDepthBuffer: true} );
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize( window.innerWidth, window.innerHeight )
   document.body.appendChild( renderer.domElement )
@@ -36,14 +36,14 @@ function init() {
 	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera(
-    55,
+    60,
     window.innerWidth / window.innerHeight,
-    0.01, 
-    100 
+    0.01,
+    100
   );
 
-	camera.position.z = 14
-	camera.position.y = 1
+	camera.position.z = 19
+	camera.position.y = 0
 	scene.add(camera)
 
   // 環境光源
@@ -59,21 +59,21 @@ function init() {
   const axesHelper = new THREE.AxesHelper( 5 )
   //scene.add( axesHelper )
 
-  const bookWidth   = 10
-  const bookHeight  = 10 * (1080 / 1920)
+  const bookWidth  = 20 
+  const bookHeight = 20 * (1080 / 1920)
   const albumPages = [23, 22, 22, 22, 22, 34]
   book = new Book(albumPages, bookWidth, bookHeight)
   book.eachPage((p) => {
     scene.add( p.mesh )
   })
 
-  const minX = -20
-  const maxX =  20
-  const minY = - book.height / 2
-  const maxY =   book.height * 3
-  const minZ = -20
+  const minX = - 20
+  const maxX =   20
+  const minY = - 1
+  const maxY =  book.height * 1.8
+  const minZ = - 15
   const maxZ =  camera.position.z - 5
-  sakura= new Sakura(4000, minX, maxX, minY, maxY, minZ, maxX, scene)
+  sakura= new Sakura(5000, minX, maxX, minY, maxY, minZ, maxX, scene)
   //scene.add( sakura.flakes )
 
 	//document.addEventListener( 'mousemove', onDocumentMouseMove, false );
