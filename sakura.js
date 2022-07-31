@@ -58,7 +58,7 @@ export class Sakura {
 
     const material = new THREE.PointsMaterial({
       color: 0xffffff, 
-      size: 0.1, 
+      size: 0.08, 
       map: texture, 
       transparent: true, 
       vertexColors: true,

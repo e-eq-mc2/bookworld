@@ -39,7 +39,7 @@ export class Page {
     const dz = 0.1 / numSheets
     const z0 = (numSheets - 1 - idx) * dz
     const z1 = idx * dz - (numSheets - 1) * dz 
-    this.bendingKeyframes = new Map([[0,    0], [0.5, 15], [1,    0]])
+    this.bendingKeyframes = new Map([[0,    0], [0.5, 12], [1,    0]])
     this.pagingKeyframes  = new Map([[0, ang0],            [1, ang1]])
     this.offsetZKeyframes = new Map([[0,   z0], [0.5, z0], [1,   z1]])
 
