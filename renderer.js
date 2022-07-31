@@ -59,9 +59,9 @@ function init() {
   const axesHelper = new THREE.AxesHelper( 5 )
   //scene.add( axesHelper )
 
-  const bookWidth  = 20 
-  const bookHeight = 20 * (1080 / 1920)
-  const albumPages = [23, 22, 22, 22, 22, 34]
+  const bookWidth  = 18
+  const bookHeight = 18 * (1080.0 / 1920)
+  const albumPages = [23, 22, 22, 22, 22, 47]
   book = new Book(albumPages, bookWidth, bookHeight)
   book.eachPage((p) => {
     scene.add( p.mesh )
