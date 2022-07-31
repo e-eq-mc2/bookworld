@@ -59,9 +59,9 @@ function init() {
   const axesHelper = new THREE.AxesHelper( 5 )
   //scene.add( axesHelper )
 
-  const bookWidth   = 10
-  const bookHeight  = 10 * (1080 / 1920)
-  const albumPages = [23, 22, 22, 22, 22, 34]
+  const bookWidth   = 10 * (885 / 1270)
+  const bookHeight  = 10 
+  const albumPages = [5]
   book = new Book(albumPages, bookWidth, bookHeight)
   book.eachPage((p) => {
     scene.add( p.mesh )
@@ -73,12 +73,8 @@ function init() {
   const maxY =   book.height * 3
   const minZ = -20
   const maxZ =  camera.position.z - 5
-  sakura= new Sakura(4000, minX, maxX, minY, maxY, minZ, maxX, scene)
-  //scene.add( sakura.flakes )
+  sakura= new Sakura(3000, minX, maxX, minY, maxY, minZ, maxX, scene)
 
-	//document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	//document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-	//document.addEventListener( 'touchmove', onDocumentTouchMove, false );
   window.addEventListener( 'resize', onWindowResize )
 
   stats = new Stats();

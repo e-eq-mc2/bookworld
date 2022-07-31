@@ -36,7 +36,7 @@ export class Page {
     const ang0 = angBase //+ idx / 2
     const ang1 = ang0 - (180 + angBase * 2)
 
-    const dz = 0.2 / numSheets
+    const dz = 0.1 / numSheets
     const z0 = (numSheets - 1 - idx) * dz
     const z1 = idx * dz - (numSheets - 1) * dz 
     this.bendingKeyframes = new Map([[0,    0], [0.5, 15], [1,    0]])
@@ -234,7 +234,8 @@ export class Book {
       for(let i = 0; i < albumPages.length; ++i) {
         bgn = end
         end += albumPages[i]
-        name = `img/omoide/album${i}/${idx - bgn}.png`
+        //name = `img/omoide/album${i}/${idx - bgn}.png`
+        name = `img/obakeen/${idx - bgn}.png`
         if ( bgn <= idx && idx < end ) break
       }
 
